@@ -16,9 +16,11 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('session_id')->constrained('movie_sessions')->cascadeOnDelete();
             $table->decimal('total_amount', 8, 2);
-            $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
+            $table->enum('status', ['PENDING', 'COMPLETED', 'CANCELLED', 'EXPIRED'])->default('PENDING');
             $table->string('payment_reference')->nullable();
-            $table->timestamps();
+            $table->timestamp('updated_at')->nullable();
+            $table->timestamp('paid_at')->nullable();
+            $table->timestamp('expires_at')->nullable();
         });
     }
 

@@ -18,10 +18,12 @@ return new class extends Migration
             $table->enum('status', ['available','blocked', 'purchased'])->default('available');
             $table->foreignId('blocked_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('blocked_at')->nullable();
+            $table->timestamp('lock_expires_at')->nullable();
             $table->timestamps();
 
             $table->unique(['session_id', 'seat_id']);
             $table->index(['session_id','status']);
+            $table->index(['lock_expires_at']);
         });
     }
 

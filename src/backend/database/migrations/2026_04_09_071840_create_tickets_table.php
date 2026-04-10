@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('seat_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('sessions_seat_id')->constrained('sessions_seats')->cascadeOnDelete();
             $table->string('qr_code')->unique();
+            $table->unique('sessions_seat_id');
             $table->timestamps();
         });
     }
