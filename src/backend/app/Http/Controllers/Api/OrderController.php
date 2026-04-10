@@ -131,7 +131,7 @@ class OrderController extends Controller
 
         if ($order->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
-        }   
+        }
 
         if ($order->status !== 'PENDING') {
             return response()->json(['message' => 'Order already processed'], 400);
@@ -145,9 +145,9 @@ class OrderController extends Controller
         $order->update([
             'status' => 'PAID',
             'paid_at' => now(),
-            'payment_reference' =>  'PAY' . Str::upper(Str::random(10)),
+            'payment_reference' => 'PAY' . Str::upper(Str::random(10)),
         ]);
-        
+
         $sessionSeats = SessionSeat::where('session_id', $order->session_id)
             ->whereIn('seat_id', function ($query) use ($order) {
                 $query->select('seat_id')
@@ -157,7 +157,7 @@ class OrderController extends Controller
             ->get();
 
         $sessionSeats = SessionSeat::where('session_id', $order->session_id)
-            ->where('status', 'blocked') 
+            ->where('status', 'blocked')
             ->where('blocked_by', $order->user_id)
             ->get();
 
@@ -192,13 +192,13 @@ class OrderController extends Controller
     {
         $session = MovieSession::find($sessionId);
         $seats = SessionSeat::where('session_id', $sessionId)->whereIn('seat_id', $seatIds)->with('seat')->get();
-        
+
         $total = 0;
         foreach ($seats as $sessionSeat) {
-            $price = $session->price * $sessionSeat->seat->price_modifier; 
+            $price = $session->price * $sessionSeat->seat->price_modifier;
             $total += $price;
         }
         return $total;
     }
 }
-    
+

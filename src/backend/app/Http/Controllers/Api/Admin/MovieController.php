@@ -13,15 +13,15 @@ class MovieController extends Controller
         return response()->json(Movie::all());
     }
 
-    public function store (Request $request)
+    public function store(Request $request)
     {
         $request->validate([
-            'title'=>'required|string|max:255',
-            'description'=>'nullable|string',
-            'poster_url'=>'nullable|string',
-            'duration'=>'required|integer|min:1',
-            'genre'=>'required|string|max:255',
-            'release_date'=>'required|date',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'poster_url' => 'nullable|string',
+            'duration' => 'required|integer|min:1',
+            'genre' => 'required|string|max:255',
+            'release_date' => 'required|date',
         ]);
 
         $movie = Movie::create($request->all());
@@ -36,12 +36,12 @@ class MovieController extends Controller
     public function update(Request $request, Movie $movie)
     {
         $request->validate([
-            'title'=> 'string|max:255',
-            'description'=> 'nullable|string',
-            'poster_url'=> 'nullable|string',
-            'duration'=> 'integer|min:1',
-            'genre'=> 'string|max:255',
-            'release_date'=> 'date',
+            'title' => 'string|max:255',
+            'description' => 'nullable|string',
+            'poster_url' => 'nullable|string',
+            'duration' => 'integer|min:1',
+            'genre' => 'string|max:255',
+            'release_date' => 'date',
         ]);
 
         $movie->update($request->all());
@@ -51,6 +51,6 @@ class MovieController extends Controller
     public function destroy(Movie $movie)
     {
         $movie->delete();
-        return response()->json(['message'=> 'Movie deleted']);
+        return response()->json(['message' => 'Movie deleted']);
     }
 }

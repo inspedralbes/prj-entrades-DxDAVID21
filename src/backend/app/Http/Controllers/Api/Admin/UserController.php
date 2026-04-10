@@ -17,17 +17,17 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'=>'required|string|max:255',
-            'email'=>'required|string|email|max:255|unique:users',
-            'password'=>'required|string|min:8',
-            'role'=>'required|in:user,admin',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'role' => 'required|in:user,admin',
         ]);
 
         $user = User::create([
-            'name'=>$request->input('name'),
-            'email'=>$request->input('email'),
-            'password'=>Hash::make($request->input('password')),
-            'role'=>$request->input('role'),
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => Hash::make($request->input('password')),
+            'role' => $request->input('role'),
         ]);
 
         return response()->json($user, 201);
@@ -41,10 +41,10 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name'=>'string|max:255',
-            'email'=>'string|email|max:255|unique:users,email,'.$user->id,
-            'password'=>'string|min:8',
-            'role'=>'in:user,admin',
+            'name' => 'string|max:255',
+            'email' => 'string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'string|min:8',
+            'role' => 'in:user,admin',
         ]);
 
         $data = $request->except('password');
@@ -60,6 +60,6 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        return response()->json(['message'=>'User deleted']);
+        return response()->json(['message' => 'User deleted']);
     }
 }

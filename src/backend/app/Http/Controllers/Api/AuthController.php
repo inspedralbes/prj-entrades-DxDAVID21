@@ -14,56 +14,56 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name'=>'required|string|max:255',
-            'email'=>'required|string|email|max:255|unique:users',
-            'password'=>'required|string|min:8',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
         ]);
 
         $user = User::create([
-            'name'=>$request->input('name'),
-            'email'=>$request->input('email'),
-            'password'=>Hash::make($request->input('password')),
-            'role'=>'user',
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => Hash::make($request->input('password')),
+            'role' => 'user',
         ]);
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
-            'user'=>$user,
-            'token'=>$token,
+            'user' => $user,
+            'token' => $token,
         ], 201);
     }
 
-    public function login (Request $request)
+    public function login(Request $request)
     {
         $request->validate([
-            'email'=> 'required|email',
-            'password'=> 'required',
+            'email' => 'required|email',
+            'password' => 'required',
         ]);
 
-        $user = User::where('email',$request->input('email'))->first();
+        $user = User::where('email', $request->input('email'))->first();
 
-        if (!$user ||Hash::check($request->input('password'), $user->password)) {
-            return response()->json(['message'=>'Invalid credentials'], 401);
+        if (!$user || !Hash::check($request->input('password'), $user->password)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
-            'user'=>$user,
-            'token'=>$token,
+            'user' => $user,
+            'token' => $token,
         ]);
 
     }
 
-    public function logout (Request $request)
+    public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message'=>'Logged out']);
+        return response()->json(['message' => 'Logged out']);
     }
 
-    public function user (Request $request)
+    public function user(Request $request)
     {
         return response()->json($request->user());
     }

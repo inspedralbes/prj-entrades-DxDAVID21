@@ -15,15 +15,15 @@ class RoomController extends Controller
         return response()->json(Room::with('seats')->get());
     }
 
-    public function store (Request $request)
+    public function store(Request $request)
     {
         $request->validate([
-            'name'=>'required|string|max:255',
-            'rows'=> 'required|integer|min:1',
-            'seats_per_row'=> 'required|integer|min:1',
+            'name' => 'required|string|max:255',
+            'rows' => 'required|integer|min:1',
+            'seats_per_row' => 'required|integer|min:1',
         ]);
 
-        $room = Room::create(['name'=>$request->input('name')]);
+        $room = Room::create(['name' => $request->input('name')]);
 
         $seats = [];
 
@@ -31,7 +31,7 @@ class RoomController extends Controller
             $rowLetter = chr(65 + $row);
             for ($seatNum = 1; $seatNum <= $request->input('seats_per_row'); $seatNum++) {
                 $type = ($row < 2) ? 'vip' : 'standard';
-                $priceModifier = ($row < 2) ?  1.5 : 1.0;
+                $priceModifier = ($row < 2) ? 1.5 : 1.0;
 
                 $seats[] = [
                     'room_id' => $room->id,
@@ -50,7 +50,7 @@ class RoomController extends Controller
         return response()->json($room->load('seats'), 201);
     }
 
-    public function show (Room $room)
+    public function show(Room $room)
     {
         return response()->json($room->load('seats'));
     }
