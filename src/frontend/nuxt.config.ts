@@ -1,15 +1,16 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
+  compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
   vite: {
     optimizeDeps: {
-      include: ['vue', 'vue-router', '@vue/devtools-core', '@vue/devtools-kit']
+      include: ["vue", "vue-router", "@vue/devtools-core", "@vue/devtools-kit"],
     },
     server: {
       watch: {
-        usePolling: true
-      }
-    }
-  }
-})
+        usePolling: true,
+      },
+    },
+  },
+  modules: ["@pinia/nuxt"],
+});
