@@ -11,7 +11,10 @@
         Cerrar Sesión
       </button>
 
-      <NuxtLink to="/admin/movies">Dashboard</NuxtLink>
+      <NuxtLink to="/admin/movies">Movies</NuxtLink>
+      <NuxtLink to="/admin/rooms">Rooms</NuxtLink>
+      <NuxtLink to="/admin/sessions">Sessionroo</NuxtLink>
+
     </div>
     <div v-else class="p-4">
       <NuxtLink to="/login" class="text-blue-500 mr-4">Iniciar Sesión</NuxtLink>
