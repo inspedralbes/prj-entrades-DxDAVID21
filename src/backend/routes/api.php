@@ -31,7 +31,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/movies', [MovieController::class, 'store']);
     Route::get('/movies/{id}', [MovieController::class,'show']);
     Route::put('/movies/{id}', [MovieController::class,'update']);
-    Route::delete('/movies/{movies}', [MovieController::class,'destroy']);
+    Route::delete('/movies/{id}', [MovieController::class,'destroy']);
     
     // Room Management
     Route::get('/rooms', [RoomController::class, 'index']);
