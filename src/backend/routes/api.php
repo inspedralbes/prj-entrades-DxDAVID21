@@ -29,8 +29,8 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Movie 
     Route::get('/movies', [MovieController::class, 'index']);
     Route::post('/movies', [MovieController::class, 'store']);
-    Route::get('/movies/{movies}', [MovieController::class,'show']);
-    Route::put('/movies/{movies}', [MovieController::class,'update']);
+    Route::get('/movies/{id}', [MovieController::class,'show']);
+    Route::put('/movies/{id}', [MovieController::class,'update']);
     Route::delete('/movies/{movies}', [MovieController::class,'destroy']);
     
     // Room Management

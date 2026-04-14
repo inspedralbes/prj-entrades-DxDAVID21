@@ -28,13 +28,21 @@ class MovieController extends Controller
         return response()->json($movie, 201);
     }
 
-    public function show(Movie $movie)
+    public function show($id)
     {
-        return response()->json($movie);
+        $movie = Movie::findOrFail($id);
+
+        if (!$movie) {
+            return response()->json(['message'=> 'Movie not found'],404);
+        }
+        return response()->json($movie,200);
+
     }
 
-    public function update(Request $request, Movie $movie)
+    public function update(Request $request, $id)
     {
+
+
         $request->validate([
             'title' => 'string|max:255',
             'description' => 'nullable|string',
@@ -43,13 +51,19 @@ class MovieController extends Controller
             'genre' => 'string|max:255',
             'release_date' => 'date',
         ]);
+        $movie = Movie::findOrFail($id);
+
+        if (!$movie) {
+            return response()->json(['message'=> 'Movie not found'],404);
+        }
 
         $movie->update($request->all());
         return response()->json($movie);
     }
 
-    public function destroy(Movie $movie)
+    public function destroy($id)
     {
+        $movie = Movie::findOrFail($id);
         $movie->delete();
         return response()->json(['message' => 'Movie deleted']);
     }
