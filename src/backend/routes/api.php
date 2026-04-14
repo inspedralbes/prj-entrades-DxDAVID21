@@ -29,23 +29,23 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Movie 
     Route::get('/movies', [MovieController::class, 'index']);
     Route::post('/movies', [MovieController::class, 'store']);
-    Route::get('/movies/{movies}', [MovieController::class,'show']);
-    Route::put('/movies/{movies}', [MovieController::class,'update']);
-    Route::delete('/movies/{movies}', [MovieController::class,'destroy']);
+    Route::get('/movies/{id}', [MovieController::class,'show']);
+    Route::put('/movies/{id}', [MovieController::class,'update']);
+    Route::delete('/movies/{id}', [MovieController::class,'destroy']);
     
     // Room Management
     Route::get('/rooms', [RoomController::class, 'index']);
     Route::post('/rooms', [RoomController::class, 'store']);
-    Route::get('/rooms/{room}', [RoomController::class,'show']);
-    Route::put('/rooms/{room}', [RoomController::class,'update']);
-    Route::delete('/rooms/{room}', [RoomController::class,'destroy']);
+    Route::get('/rooms/{id}', [RoomController::class,'show']);
+    Route::put('/rooms/{id}', [RoomController::class,'update']);
+    Route::delete('/rooms/{id}', [RoomController::class,'destroy']);
 
     // Session Management
     Route::get('/sessions', [SessionController::class,'index']);
     Route::post('/sessions', [SessionController::class,'store']);
-    Route::get('/sessions/{session}', [SessionController::class,'show']);
-    Route::put('/sessions/{session}', [SessionController::class,'update']);
-    Route::delete('/sessions/{session}', [SessionController::class,'destroy']);
+    Route::get('/sessions/{id}', [SessionController::class,'show']);
+    Route::put('/sessions/{id}', [SessionController::class,'update']);
+    Route::delete('/sessions/{id}', [SessionController::class,'destroy']);
 
     // Users
     Route::get('/users', [UserController::class,'index']);

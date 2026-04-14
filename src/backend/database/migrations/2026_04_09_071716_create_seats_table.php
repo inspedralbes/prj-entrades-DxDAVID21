@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('price_modifier', 3, 2)->default(1.00);
             $table->timestamp('last_expires_at')->nullable();
             $table->timestamp('updated_at')->nullable();
-
+            $table->timestamp('created_at')->nullable();
             // $table->index('blocked_by');
             // $table->index('lock_expires_at');
 

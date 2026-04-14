@@ -54,12 +54,15 @@ class SessionController extends Controller
         return response()->json($session->load('movie', 'room'), 201);
     }
 
-    public function show(MovieSession $movieSession)
+    public function show($id)
     {
+        $movieSession =  MovieSession::find($id);
+
+
         return response()->json($movieSession->load('movie', 'room', 'sessionSeats'));
     }
 
-    public function update(Request $request, MovieSession $movieSession)
+    public function update(Request $request, $id)
     {
         $request->validate([
             'movie_id' => 'exists:movies,id',
@@ -68,12 +71,15 @@ class SessionController extends Controller
             'price' => 'numeric|min:0',
         ]);
 
+        $movieSession = MovieSession::find($id);
+
         $movieSession->update($request->all());
         return response()->json($movieSession);
     }
 
-    public function destroy(MovieSession $movieSession)
+    public function destroy($id)
     {
+        $movieSession = MovieSession::find($id);
         $movieSession->delete();
         return response()->json(['message' => 'Session deleted']);
     }

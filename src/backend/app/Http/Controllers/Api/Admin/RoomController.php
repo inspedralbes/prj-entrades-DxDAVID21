@@ -50,8 +50,13 @@ class RoomController extends Controller
         return response()->json($room->load('seats'), 201);
     }
 
-    public function show(Room $room)
+    public function show($id)
     {
+        $room = Room::findOrFail($id);
+
+        if (!$room) {
+            return response()->json(['message'=> 'Sala no trobada'],404);
+        }
         return response()->json($room->load('seats'));
     }
 
