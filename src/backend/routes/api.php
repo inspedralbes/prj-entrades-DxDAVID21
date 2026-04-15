@@ -55,6 +55,14 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::delete('/users/{user}', [UserController::class,'destroy']);
 });
 
+// Public Routes - Movies
+Route::get('/movies', [MovieController::class,'indexpublic']);
+Route::get('/movies/{id}', [MovieController::class,'showPublic']);
+
+
+Route::get('/sessions', [SessionController::class, 'indexPublic']);
+Route::get('/sessions/{id}', [SessionController::class,'showPublic']);
+
 // Protected Routes - Orders (auth only)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders/block-seats', [OrderController::class,'blockSeats']);

@@ -83,4 +83,16 @@ class SessionController extends Controller
         $movieSession->delete();
         return response()->json(['message' => 'Session deleted']);
     }
+
+    public function indexPublic()
+    {
+        return response()->json(MovieSession::with(['movie', 'room'])->get());
+    }
+
+    public function showPublic($id)
+    {
+        $movieSession = MovieSession::find($id);
+
+        return response()->json($movieSession->load('movie', 'room'));
+    }
 }

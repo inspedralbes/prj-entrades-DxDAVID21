@@ -70,4 +70,18 @@ class MovieController extends Controller
         $movie->delete();
         return response()->json(['message' => 'Movie deleted']);
     }
+
+    public function indexPublic()
+    {
+        return response()->json(Movie::all(),200);
+    }
+
+    public function showPublic($id)
+    {
+        $movie = Movie::with(['sessions.room'])->findOrFail($id);
+        if (!$movie) {
+            return response()->json(['message'=> 'Movie not found'],404);
+        }
+        return response()->json($movie,200);
+    }
 }
