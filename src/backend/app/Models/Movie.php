@@ -16,7 +16,7 @@ class Movie extends Model
         'release_date',
     ];
 
-    public function session(): HasMany
+    public function sessions(): HasMany
     {
         return $this->hasMany(MovieSession::class);
     }
