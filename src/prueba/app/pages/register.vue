@@ -7,7 +7,7 @@
 
       <form @submit.prevent="handleRegister">
         <div class="mb-4">
-          <label class="block text-indigo-500">Nombre</label>
+          <label class="block">Nombre</label>
           <input v-model="name" type="text" class="w-full" required />
         </div>
 
