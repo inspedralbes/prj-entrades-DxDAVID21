@@ -6,12 +6,12 @@
       </h1>
       <form @submit.prevent="handleLogin">
         <div class="m-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+          <label class="block text-sm font-bold mb-2">Email</label>
           <input v-model="email" type="email" class="w-full" required />
         </div>
 
         <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2">Password
+          <label class="block text-sm font-bold mb-2">Password
           </label>
           <input v-model="password" type="password" class="w-full" required />
         </div>

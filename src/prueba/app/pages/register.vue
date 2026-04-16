@@ -1,11 +1,13 @@
 <template>
   <div class="container">
     <div class="bg-white">
-      <h1 class="text-2xl">Registrarse</h1>
+      <h1 class="text-2xl">
+        Registrarse
+      </h1>
 
       <form @submit.prevent="handleRegister">
         <div class="mb-4">
-          <label class="block">Nombre</label>
+          <label class="block text-indigo-500">Nombre</label>
           <input v-model="name" type="text" class="w-full" required />
         </div>
 
@@ -19,7 +21,9 @@
           <input v-model="password" type="password" class="w-full" required />
         </div>
 
-        <button type="submit" class="w-full">Registrarse</button>
+        <button type="submit" class="w-full">
+          Registrarse
+        </button>
       </form>
 
       <p class="mt-4">
