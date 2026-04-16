@@ -95,4 +95,30 @@ class SessionController extends Controller
 
         return response()->json($movieSession->load('movie', 'room'));
     }
+
+    public function getSessionSeats($id)
+    {
+        $session = MovieSession::with(['room.seats', 'sessionSeats'])->findOrFail($id);
+
+        $seats = $session->room->seats->map(function ($seat) use ($session) {
+            $sessionSeat = $session->sessionSeats->firstWhere('seat_id', $seat->id);
+
+            return [
+                'id' => $seat->id,
+                'row_label' => $seat->row_label,
+                'number' => $seat->number,
+                'type' => $seat->type,
+                'price_modifier' => $seat->price_modifier,
+                'status' => $sessionSeat?->status ?? 'available',
+                'blocked_by' => $sessionSeat?->blocked_by,
+                'lock_expires_at' => $sessionSeat?->lock_expires_at,
+            ];
+        });
+
+        return response()->json([
+            'session' => $session->load('movie', 'room'),
+            'seats' => $seats,
+            'price' => $session->price,
+        ]);
+    }
 }

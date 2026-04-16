@@ -80,7 +80,7 @@ class OrderController extends Controller
         return response()->json(['message' => 'Seats released']);
     }
 
-    public function createdOrder(Request $request)
+    public function createOrder(Request $request)
     {
         $request->validate([
             'session_id' => 'required|exists:movie_sessions,id',
@@ -143,7 +143,7 @@ class OrderController extends Controller
         }
 
         $order->update([
-            'status' => 'PAID',
+            'status' => 'COMPLETED',
             'paid_at' => now(),
             'payment_reference' => 'PAY' . Str::upper(Str::random(10)),
         ]);
@@ -171,7 +171,7 @@ class OrderController extends Controller
 
             Ticket::create([
                 'order_id' => $order->id,
-                'session_seat_id' => $sessionSeat->id,
+                'sessions_seat_id' => $sessionSeat->id,
                 'qr_code' => 'TKT-' . Str::upper(Str::random(12)),
             ]);
         }
