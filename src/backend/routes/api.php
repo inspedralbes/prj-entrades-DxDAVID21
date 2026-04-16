@@ -62,6 +62,7 @@ Route::get('/movies/{id}', [MovieController::class,'showPublic']);
 
 Route::get('/sessions', [SessionController::class, 'indexPublic']);
 Route::get('/sessions/{id}', [SessionController::class,'showPublic']);
+Route::get('/sessions/{id}/seats', [SessionController::class,'getSessionSeats']);
 
 // Protected Routes - Orders (auth only)
 Route::middleware('auth:sanctum')->group(function () {

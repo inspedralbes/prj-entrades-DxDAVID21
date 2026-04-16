@@ -9,7 +9,7 @@ class Ticket extends Model
 {
     protected $fillable = [
         'order_id',
-        'session_seat_id',
+        'sessions_seat_id',
         'qr_code'
     ];
 
@@ -20,6 +20,6 @@ class Ticket extends Model
 
     public function sessionSeat(): BelongsTo
     {
-        return $this->belongsTo(SessionSeat::class, 'session_seat_id');
+        return $this->belongsTo(SessionSeat::class, 'sessions_seat_id');
     }
 }

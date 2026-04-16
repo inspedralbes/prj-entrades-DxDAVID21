@@ -19,6 +19,7 @@ return new class extends Migration
             $table->enum('status', ['PENDING', 'COMPLETED', 'CANCELLED', 'EXPIRED'])->default('PENDING');
             $table->string('payment_reference')->nullable();
             $table->timestamp('updated_at')->nullable();
+            $table->timestamp('created_at')->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->timestamp('expires_at')->nullable();
         });
