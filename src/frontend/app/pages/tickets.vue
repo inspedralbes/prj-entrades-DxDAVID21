@@ -26,7 +26,7 @@
                 <span class="text-gray-600 ml-2">{{ formatDate(order.session?.start_time) }}</span>
               </div>
               <span
-                :class="order.status === 'PAID' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'"
+                :class="order.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'"
                 class="px-3 py-1 rounded text-sm"
               >
                 {{ order.status }}
@@ -44,7 +44,7 @@
                 :key="ticket.id"
                 class="border rounded p-4 text-center"
               >
-                <div class="text-sm text-gray-600 mb-2">Seat {{ ticket.session_seat?.seat?.row_label }}{{ ticket.session_seat?.seat?.number }}</div>
+                <div class="text-sm text-gray-600 mb-2">Seat {{ ticket.sessions_seat?.seat?.row_label }}{{ ticket.sessions_seat?.seat?.number }}</div>
                 <div class="bg-gray-100 p-2 rounded text-xs font-mono">{{ ticket.qr_code }}</div>
               </div>
             </div>
