@@ -148,13 +148,13 @@ class OrderController extends Controller
             'payment_reference' => 'PAY' . Str::upper(Str::random(10)),
         ]);
 
-        $sessionSeats = SessionSeat::where('session_id', $order->session_id)
-            ->whereIn('seat_id', function ($query) use ($order) {
-                $query->select('seat_id')
-                    ->from('sessions_seats')
-                    ->where('id', $order->id);
-            })
-            ->get();
+        // $sessionSeats = SessionSeat::where('session_id', $order->session_id)
+        //     ->whereIn('seat_id', function ($query) use ($order) {
+        //         $query->select('seat_id')
+        //             ->from('sessions_seats')
+        //             ->where('id', $order->id);
+        //     })
+        //     ->get();
 
         $sessionSeats = SessionSeat::where('session_id', $order->session_id)
             ->where('status', 'blocked')
@@ -184,7 +184,9 @@ class OrderController extends Controller
 
     public function getUserOrders(Request $request)
     {
-        $orders = Order::where('user_id', $request->user()->id)->with('session.movie', 'tickets')->get();
+        $orders = Order::where('user_id', $request->user()->id)
+            ->with('session.movie', 'tickets.sessionSeat.seat')
+            ->get();
         return response()->json($orders);
     }
 

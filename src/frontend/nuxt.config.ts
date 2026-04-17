@@ -7,6 +7,11 @@ export default defineNuxtConfig({
         '@vue/devtools-kit',
         'pinia'
       ]
+    },
+    server: {
+      watch: {
+        usePolling: true
+      }
     }
   },
 
