@@ -31,8 +31,8 @@
                 class="text-blue-500"
                 >Editar</NuxtLink
               >
-              <buttton @click="handleDelete(movie.id)" class="text-red-500"
-                >Eliminar</buttton
+              <button @click="handleDelete(movie.id)" class="text-red-500"
+                >Eliminar</button
               >
             </td>
           </tr>
