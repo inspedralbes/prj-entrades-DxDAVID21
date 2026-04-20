@@ -31,8 +31,13 @@
             <td class="border">
               <NuxtLink
                 :to="`/admin/sessions/${session.id}/edit`"
-                class="text-blue-500"
+                class="text-blue-500 mr-2"
                 >Editar</NuxtLink
+              >
+              <NuxtLink
+                :to="`/admin/sessions/${session.id}/dashboard`"
+                class="text-green-500 mr-2"
+                >Dashboard</NuxtLink
               >
               <button @click="handleDelete(session.id)" class="text-red-500">
                 Eliminar
