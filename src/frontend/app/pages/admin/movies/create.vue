@@ -31,6 +31,15 @@
             <div class="mb-4">
                 <label class="block">URL poster</label>
                 <input v-model="form.poster_url" type="text" class="w-full"/>
+
+                <div class="mt-4">
+                    <p class="text-sm">Vista previa:</p>
+                    <img 
+                        :src="form.poster_url" 
+                        alt="Poster preview"
+                        class="w-32 h-48 object-cover rounded border"    
+                    >
+                </div>
             </div>
 
             <button type="submit" class="bg-blue-500">

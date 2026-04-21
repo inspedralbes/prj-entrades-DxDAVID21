@@ -38,6 +38,18 @@
       <div class="mb-4">
         <label class="block">URL poster</label>
         <input v-model="form.poster_url" type="text" class="w-full" />
+
+        <div v-if="form.poster_url" class="mt-4">
+          <p class="text-sm text-gray-500 mb-2">Vista previa:</p>
+          <img 
+            :src="form.poster_url" 
+            alt="Poster preview"
+            class="w-32 h-48 object-cover rounded border"
+            @error="handleImageError"
+            @load="imageLoaded = true"
+          />
+          <p v-if="!imageLoaded" class="text-red-500 text-sm mt-2">Error: No se pudo cargar la imagen</p>
+        </div>
       </div>
 
       <button type="submit" class="ml-4">Guardar Cambios</button>
@@ -48,6 +60,7 @@
 </template>
 
 <script setup>
+const imageLoaded = ref(false)
 const route = useRoute();
 const id = route.params.id;
 const form = ref({});
@@ -78,4 +91,8 @@ const handleSubmit = async () => {
     alert("Error al actualizar pelicula");
   }
 };
+const handleImageError = (event) => {
+  imageLoaded.value = false
+  event.target.src = 'https://via.placeholder.com/128x192?text=Error'
+}
 </script>
