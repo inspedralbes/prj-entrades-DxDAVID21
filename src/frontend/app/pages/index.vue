@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <div v-if="authStore.isAuthenticated" class="p-4">
-      <p>Bienvenido, {{ authStore.user?.name }}!</p>
+  <div class="p-8">
+    <div v-if="authStore.isAuthenticated" class="text-center">
+      <h1 class="text-3xl font-bold">Benvingut, {{ authStore.user?.name }}!</h1>
 
       <button
         @click="authStore.logout()"
@@ -9,10 +9,6 @@
       >
         Cerrar Sesión
       </button>
-
-      <NuxtLink to="/admin/movies">Movies</NuxtLink>
-      <NuxtLink to="/admin/rooms">Rooms</NuxtLink>
-      <NuxtLink to="/admin/sessions">Sessionroom</NuxtLink>
     </div>
     <div v-else class="p-4">
       <NuxtLink to="/login" class="text-blue-500 mr-4">Iniciar Sesión</NuxtLink>

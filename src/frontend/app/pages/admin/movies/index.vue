@@ -21,6 +21,16 @@
         </thead>
         <tbody>
           <tr v-for="movie in movies" :key="movie.id" class="text-center">
+            <td class="border">
+              <img
+                v-if="movie.poster_url" 
+                :src="movie.poster_url" 
+                :alt="movie.poster_url"
+                class="w-16 h-24 object-cover mx-auto rounded"
+                @error="handleImageErro($event)" 
+              >
+              <span v-else class="text-gray-400 text-xs">Sin poster</span>
+            </td>
             <td class="border">{{ movie.id }}</td>
             <td class="border">{{ movie.title }}</td>
             <td class="border">{{ movie.genre }}</td>
@@ -65,4 +75,7 @@
             movies.value = await moviesApi.getMovies()
         }
     }
-</script>
+    const handleImageError = (event) => {
+      event.target.src = 'https://via.placeholder.com/64x96?text=Error'
+    }
+</script> 
