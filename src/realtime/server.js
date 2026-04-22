@@ -3,6 +3,7 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
+const axios = require("axios");
 
 const io = new Server(server, {
   cors: {
@@ -13,6 +14,9 @@ const io = new Server(server, {
 
 const activeSessions = new Map();
 const connectedUsers = new Map();
+const userBlockedSeats = new Map();
+
+const LARAVEL_API_URL = process.env.LARAVEL_API_URL || "http://localhost:8000/api";
 
 app.use(express.json());
 
@@ -43,6 +47,7 @@ app.post("/broadcast", (req, res) => {
 io.on("connection", (socket) => {
   const sessionId = socket.handshake.query.sessionId;
   const userId = socket.handshake.query.userId;
+  const token = socket.handshake.query.token;
 
   console.log(`User connected: ${socket.id}, session: ${sessionId}, user: ${userId}`);
 
@@ -56,7 +61,7 @@ io.on("connection", (socket) => {
     activeSessions.get(roomName).add(socket.id);
 
     if (userId) {
-      connectedUsers.set(socket.id, { sessionId, userId, joinedAt: new Date() });
+      connectedUsers.set(socket.id, { sessionId, userId, token, joinedAt: new Date() });
     }
 
     const userCount = activeSessions.get(roomName).size;
@@ -66,7 +71,7 @@ io.on("connection", (socket) => {
   }
 
   socket.on("session:join", (data) => {
-    const { sessionId, userId } = data;
+    const { sessionId, userId, token } = data;
     const roomName = `session_${sessionId}`;
 
     socket.join(roomName);
@@ -77,7 +82,7 @@ io.on("connection", (socket) => {
     activeSessions.get(roomName).add(socket.id);
 
     if (userId) {
-      connectedUsers.set(socket.id, { sessionId, userId, joinedAt: new Date() });
+      connectedUsers.set(socket.id, { sessionId, userId, token, joinedAt: new Date() });
     }
 
     const userCount = activeSessions.get(roomName).size;
@@ -87,11 +92,48 @@ io.on("connection", (socket) => {
     console.log(`User ${userId} joined session ${sessionId}`);
   });
 
-  socket.on("session:leave", (data) => {
+  socket.on("session:leave", async (data) => {
     const { sessionId, userId } = data;
     const roomName = `session_${sessionId}`;
 
     socket.leave(roomName);
+
+    const userData = connectedUsers.get(socket.id);
+    const token = userData?.token || null;
+
+    const userKey = `${sessionId}_${userId}`;
+    const blockedSeats = userBlockedSeats.get(userKey) || [];
+
+    if (blockedSeats.size > 0) {
+      console.log(`Releasing ${blockedSeats.size} seats on session leave for user ${userId}`);
+
+      for (const seatId of blockedSeats) {
+        try {
+          await axios.post(`${LARAVEL_API_URL}/orders/release-seats`, {
+            session_id: parseInt(sessionId),
+            seats_ids: [seatId]
+          }, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': token ? `Bearer ${token}` : ''
+            }
+          });
+
+          io.to(roomName).emit("seat:status", {
+            sessionId: parseInt(sessionId),
+            seatId,
+            status: "available",
+            blockedBy: null,
+            lockedUntil: null,
+            timestamp: new Date().toISOString()
+          });
+        } catch (error) {
+          console.error(`Failed to release seat ${seatId}:`, error.message);
+        }
+      }
+
+      userBlockedSeats.delete(userKey);
+    }
 
     if (activeSessions.has(roomName)) {
       activeSessions.get(roomName).delete(socket.id);
@@ -110,6 +152,12 @@ io.on("connection", (socket) => {
   socket.on("seat:block", (data) => {
     const { sessionId, seatId, userId, lockedUntil } = data;
     const roomName = `session_${sessionId}`;
+
+    const userKey = `${sessionId}_${userId}`;
+    if (!userBlockedSeats.has(userKey)) {
+      userBlockedSeats.set(userKey, new Set());
+    }
+    userBlockedSeats.get(userKey).add(seatId);
 
     console.log(`Seat blocked: session=${sessionId}, seat=${seatId}, user=${userId}`);
 
@@ -135,6 +183,11 @@ io.on("connection", (socket) => {
   socket.on("seat:release", (data) => {
     const { sessionId, seatId, userId } = data;
     const roomName = `session_${sessionId}`;
+
+    const userKey = `${sessionId}_${userId}`;
+    if (userBlockedSeats.has(userKey)) {
+      userBlockedSeats.get(userKey).delete(seatId);
+    }
 
     console.log(`Seat released: session=${sessionId}, seat=${seatId}, user=${userId}`);
 
@@ -199,13 +252,47 @@ io.on("connection", (socket) => {
     console.log(`Admin subscribed to session ${sessionId}`);
   });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", async () => {
     console.log(`User disconnected: ${socket.id}`);
 
-    const userData = connectedUsers.get(socket.id);
+const userData = connectedUsers.get(socket.id);
     if (userData) {
-      const { sessionId, userId } = userData;
+      const { sessionId, userId, token } = userData;
       const roomName = `session_${sessionId}`;
+
+      const userKey = `${sessionId}_${userId}`;
+      const blockedSeats = userBlockedSeats.get(userKey) || [];
+
+      if (blockedSeats.size > 0) {
+        console.log(`Releasing ${blockedSeats.size} seats on disconnect for user ${userId}`);
+
+        for (const seatId of blockedSeats) {
+          try {
+            await axios.post(`${LARAVEL_API_URL}/orders/release-seats`, {
+              session_id: parseInt(sessionId),
+              seats_ids: [seatId]
+            }, {
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+              }
+            });
+
+            io.to(roomName).emit("seat:status", {
+              sessionId: parseInt(sessionId),
+              seatId,
+              status: "available",
+              blockedBy: null,
+              lockedUntil: null,
+              timestamp: new Date().toISOString()
+            });
+          } catch (error) {
+            console.error(`Failed to release seat ${seatId}:`, error.message);
+          }
+        }
+
+        userBlockedSeats.delete(userKey);
+      }
 
       if (activeSessions.has(roomName)) {
         activeSessions.get(roomName).delete(socket.id);

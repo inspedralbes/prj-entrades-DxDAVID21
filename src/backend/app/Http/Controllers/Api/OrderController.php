@@ -111,6 +111,7 @@ class OrderController extends Controller
             'user_id' => $user->id,
             'session_id' => $sessionId,
             'total_amount' => $total,
+            'seat_ids' => $seatIds,
             'status' => 'PENDING',
             'expires_at' => $expiresAt,
         ]);
@@ -156,7 +157,14 @@ class OrderController extends Controller
         //     })
         //     ->get();
 
+        $seatIds = $order->seat_ids ?? [];
+
+        if (empty($seatIds)) {
+            return response()->json(['message' => 'No seats found in order'], 400);
+        }
+
         $sessionSeats = SessionSeat::where('session_id', $order->session_id)
+            ->whereIn('seat_id', $seatIds)
             ->where('status', 'blocked')
             ->where('blocked_by', $order->user_id)
             ->get();

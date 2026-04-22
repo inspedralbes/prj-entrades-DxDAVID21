@@ -14,11 +14,14 @@ export const useBooking = () => {
     )
   }
 
-  const blockSeats = async (sessionId: number, seatIds: number[]) => {
+  const blockSeats = async (sessionId: number, seatIds: (number | string)[]) => {
     return await $fetch('http://localhost:8000/api/orders/block-seats', {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: { session_id: sessionId, seats_ids: seatIds }
+      body: { 
+        session_id: sessionId, 
+        seats_ids: seatIds.map(id => Number(id))
+      }
     })
   }
 

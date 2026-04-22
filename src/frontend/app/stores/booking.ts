@@ -38,19 +38,24 @@ export const useBookingStore = defineStore('booking', {
         getSeatsByRow: (state) => {
             const rows: Record<string, Seat[]> = {}
             state.seats.forEach((seat) => {
+                const rowLabel = seat.row_label
                 if (!rows[seat.row_label]) {
                     rows[seat.row_label] = []
                 }
-                rows[seat.row_label].push(seat)
+                rows[rowLabel]!.push(seat)
             })
             Object.keys(rows).forEach((row) => {
-                rows[row].sort((a, b) => a.number - b.number)
+                rows[row]!.sort((a, b) => a.number - b.number)
             })
             return rows
         },
     },
 
     actions: {
+        setSession(session: any) {
+            this.session = session
+        },
+
         setSessionData(session: any, seats: Seat[], price: number) {
             this.session = session
             this.seats = seats
@@ -92,6 +97,7 @@ export const useBookingStore = defineStore('booking', {
                     existing.lock_expires_at = seat.lock_expires_at
                 }
             })
+            this.selectedSeats = seats.map(s => s.id)
             this.expiresAt = expiresAt
         },
 

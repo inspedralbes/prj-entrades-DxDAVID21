@@ -12,6 +12,7 @@ class Order extends Model
         'user_id',
         'session_id',
         'total_amount',
+        'seat_ids',
         'status',
         'payment_reference',
         'paid_at',
@@ -21,6 +22,7 @@ class Order extends Model
     protected $casts = [
         'paid_at' => 'datetime',
         'expires_at' => 'datetime',
+        'seat_ids' => 'array',
     ];
 
     public function user(): BelongsTo

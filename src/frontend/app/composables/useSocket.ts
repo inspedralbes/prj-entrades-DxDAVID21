@@ -11,12 +11,14 @@ export const useSocket = () => {
 
     const connect = (sessionId: number) => {
         const socketUrl = 'http://localhost:3001'
+        const token = localStorage.getItem('token')
 
         socket = io(socketUrl, {
             transports: ['websocket', 'polling'],
             query: {
                 sessionId: sessionId,
-                userId: authStore.user?.id || null
+                userId: authStore.user?.id || null,
+                token: token || null
             },
             reconnection: true,
             reconnectionAttempts: 5,
@@ -27,7 +29,8 @@ export const useSocket = () => {
             console.log('Socket connected:', socket.id)
             socket.emit('session:join', {
                 sessionId,
-                userId: authStore.user?.id
+                userId: authStore.user?.id,
+                token: token || null
             })
         })
 
@@ -37,9 +40,11 @@ export const useSocket = () => {
 
         socket.on('reconnect', (attemptNumber: number) => {
             console.log('Socket reconnected after', attemptNumber, 'attempts')
+            const reconnectToken = localStorage.getItem('token')
             socket.emit('session:join', {
                 sessionId,
-                userId: authStore.user?.id
+                userId: authStore.user?.id,
+                token: reconnectToken || null
             })
         })
 
