@@ -1,113 +1,128 @@
 <template>
-  <div class="p-6">
-    <div class="flex justify-between items-center mb-6">
+  <div>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
-        <h1 class="text-2xl font-bold">Panell d'Administració</h1>
-        <p class="text-gray-600">{{ session?.movie?.title }} - {{ session?.room?.name }}</p>
+        <h1 class="text-2xl font-bold text-white">Dashboard de Sessió</h1>
+        <p class="text-gray-400">{{ session?.movie?.title }} - {{ session?.room?.name }}</p>
       </div>
-      <NuxtLink
-        :to="`/admin/sessions/`"
-        class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-      >
-        Tornar
+      <NuxtLink to="/admin/sessions/">
+        <AdminButton variant="ghost" icon="i-heroicons-arrow-left">
+          Tornar
+        </AdminButton>
       </NuxtLink>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      <div class="bg-white border rounded-lg p-4">
-        <div class="text-sm text-gray-500">Usuaris Connectats</div>
-        <div class="text-3xl font-bold text-blue-600">{{ connectedUsers }}</div>
-      </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <AdminCard title="">
+        <div class="text-center">
+          <div class="text-sm text-gray-400 mb-1">Usuaris Connectats</div>
+          <div class="text-3xl font-bold text-[#0068C8]">{{ connectedUsers }}</div>
+        </div>
+      </AdminCard>
 
-      <div class="bg-white border rounded-lg p-4">
-        <div class="text-sm text-gray-500">Seients Disponibles</div>
-        <div class="text-3xl font-bold text-green-600">{{ availableSeats }}</div>
-        <div class="text-sm text-gray-400">{{ occupancyPercentage }}% ocupacio</div>
-      </div>
+      <AdminCard title="">
+        <div class="text-center">
+          <div class="text-sm text-gray-400 mb-1">Seients Disponibles</div>
+          <div class="text-3xl font-bold text-green-500">{{ availableSeats }}</div>
+          <div class="text-xs text-gray-500">{{ occupancyPercentage }}% ocupació</div>
+        </div>
+      </AdminCard>
 
-      <div class="bg-white border rounded-lg p-4">
-        <div class="text-sm text-gray-500">Seients Reservats</div>
-        <div class="text-3xl font-bold text-yellow-600">{{ reservedSeats }}</div>
-      </div>
+      <AdminCard title="">
+        <div class="text-center">
+          <div class="text-sm text-gray-400 mb-1">Seients Reservats</div>
+          <div class="text-3xl font-bold text-yellow-500">{{ reservedSeats }}</div>
+        </div>
+      </AdminCard>
 
-      <div class="bg-white border rounded-lg p-4">
-        <div class="text-sm text-gray-500">Seients Venuts</div>
-        <div class="text-3xl font-bold text-purple-600">{{ purchasedSeats }}</div>
-      </div>
+      <AdminCard title="">
+        <div class="text-center">
+          <div class="text-sm text-gray-400 mb-1">Seients Venuts</div>
+          <div class="text-3xl font-bold text-purple-500">{{ purchasedSeats }}</div>
+        </div>
+      </AdminCard>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="lg:col-span-2">
-        <div class="bg-white border rounded-lg p-4">
-          <h2 class="text-lg font-semibold mb-4">Mapa de Seients</h2>
-          
-          <div class="bg-gray-800 text-white text-center py-2 mb-4 rounded">
-            PANTALLA
-          </div>
-
-          <div class="seat-grid">
-            <div v-for="rowLabel in orderedRows" :key="rowLabel" class="seat-row">
-              <span class="row-label">{{ rowLabel }}</span>
-              <div class="seats">
-                <div
-                  v-for="seat in seatsByRow[rowLabel]"
-                  :key="seat.id"
-                  :class="getAdminSeatClass(seat)"
-                  :title="getSeatTooltip(seat)"
-                >
-                  {{ seat.number }}
-                </div>
-              </div>
+        <AdminCard title="Mapa de Seients">
+          <div class="screen-indicator mb-6">
+            <div class="screen bg-gradient-to-r from-transparent via-gray-500 to-transparent h-1 rounded-full relative">
+              <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-gray-400 text-sm">PANTALLA</span>
             </div>
           </div>
 
-          <div class="legend mt-4 flex flex-wrap gap-4 justify-center">
+          <div class="seat-grid flex flex-col items-center gap-2">
+            <div
+              v-for="rowLabel in orderedRows"
+              :key="rowLabel"
+              class="seat-row flex items-center gap-1"
+            >
+              <span class="row-label text-gray-500 text-xs w-6">{{ rowLabel }}</span>
+              <div
+                v-for="seat in seatsByRow[rowLabel]"
+                :key="seat.id"
+                :class="getAdminSeatClass(seat)"
+                :title="getSeatTooltip(seat)"
+                class="seat w-8 h-8 rounded-t-lg text-xs font-medium flex items-center justify-center"
+              >
+                {{ seat.number }}
+              </div>
+              <span class="row-label text-gray-500 text-xs w-6">{{ rowLabel }}</span>
+            </div>
+          </div>
+
+          <div class="legend mt-6 flex flex-wrap gap-4 justify-center">
             <div class="flex items-center gap-2">
               <div class="w-6 h-6 bg-green-500 rounded"></div>
-              <span class="text-sm">Disponible</span>
+              <span class="text-sm text-gray-400">Disponible</span>
             </div>
             <div class="flex items-center gap-2">
               <div class="w-6 h-6 bg-yellow-500 rounded"></div>
-              <span class="text-sm">Reservat (Usuari #{{ seat?.blocked_by }})</span>
+              <span class="text-sm text-gray-400">Reservat</span>
             </div>
             <div class="flex items-center gap-2">
               <div class="w-6 h-6 bg-purple-500 rounded"></div>
-              <span class="text-sm">Vdut</span>
+              <span class="text-sm text-gray-400">Vet</span>
             </div>
           </div>
-        </div>
+        </AdminCard>
       </div>
 
-      <div>
-        <div class="bg-white border rounded-lg p-4 mb-4">
-          <h2 class="text-lg font-semibold mb-4">Recaptacio</h2>
-          <div class="text-3xl font-bold text-green-600">{{ totalRevenue }}€</div>
-          <div class="text-sm text-gray-500 mt-1">{{ purchasedSeats }} entrades venudes</div>
-        </div>
+      <div class="space-y-6">
+        <AdminCard title="Recaptació">
+          <div class="text-center">
+            <div class="text-4xl font-bold text-green-500">{{ totalRevenue }}€</div>
+            <div class="text-sm text-gray-400 mt-1">{{ purchasedSeats }} entrades venudes</div>
+          </div>
+        </AdminCard>
 
-        <div class="bg-white border rounded-lg p-4">
-          <h2 class="text-lg font-semibold mb-4">Activitat Recent</h2>
-          <div v-if="recentActivity.length === 0" class="text-gray-500 text-sm">
+        <AdminCard title="Activitat Recent">
+          <div v-if="recentActivity.length === 0" class="text-gray-500 text-sm text-center py-4">
             No hi ha activitat recent
           </div>
-          <div v-else class="space-y-2 max-h-64 overflow-y-auto">
+          <div v-else class="space-y-3 max-h-64 overflow-y-auto">
             <div
               v-for="(activity, index) in recentActivity"
               :key="index"
-              class="text-sm border-b pb-2"
+              class="pb-3 border-b border-gray-700 last:border-0"
               :class="getActivityClass(activity.type)"
             >
-              <div class="font-medium">{{ activity.message }}</div>
+              <div class="font-medium text-white text-sm">{{ activity.message }}</div>
               <div class="text-xs text-gray-500">{{ formatTime(activity.timestamp) }}</div>
             </div>
           </div>
-        </div>
+        </AdminCard>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+definePageMeta({
+  layout: 'admin'
+})
+
 import { useAuthStore } from '~/stores/auth'
 
 const route = useRoute()
@@ -127,15 +142,15 @@ const adminSessions = useSessions()
 const socketInstance = useSocket()
 let rawSocket = null
 
-const availableSeats = computed(() => 
+const availableSeats = computed(() =>
   seats.value.filter(s => s.status === 'available').length
 )
 
-const reservedSeats = computed(() => 
+const reservedSeats = computed(() =>
   seats.value.filter(s => s.status === 'blocked').length
 )
 
-const purchasedSeats = computed(() => 
+const purchasedSeats = computed(() =>
   seats.value.filter(s => s.status === 'purchased').length
 )
 
@@ -193,7 +208,7 @@ onMounted(async () => {
             seat.lock_expires_at = data.lockedUntil
           }
         }
-        
+
         if (data.status === 'purchased') {
           totalRevenue.value += parseFloat(session.value?.price || 0)
         }
@@ -208,7 +223,6 @@ onMounted(async () => {
         }
       }
     })
-
   } catch (error) {
     console.error('Error loading session:', error)
   }
@@ -221,41 +235,39 @@ onUnmounted(() => {
 })
 
 const getAdminSeatClass = (seat) => {
-  const baseClass = 'seat w-8 h-8 rounded text-xs font-medium'
-  
   switch (seat.status) {
     case 'purchased':
-      return `${baseClass} bg-purple-500 text-white cursor-not-allowed`
+      return 'bg-purple-500 text-white cursor-not-allowed'
     case 'blocked':
-      return `${baseClass} bg-yellow-500 text-white`
+      return 'bg-yellow-500 text-white'
     default:
-      return `${baseClass} bg-green-500 text-white hover:bg-green-600`
+      return 'bg-green-500 text-white hover:bg-green-600'
   }
 }
 
 const getSeatTooltip = (seat) => {
   let tooltip = `Fila ${seat.row_label}, Seient ${seat.number}`
-  
+
   if (seat.status === 'blocked') {
     tooltip += `\nReservat per usuari #${seat.blocked_by}`
     if (seat.lock_expires_at) {
       tooltip += `\nExpira: ${new Date(seat.lock_expires_at).toLocaleTimeString()}`
     }
   } else if (seat.status === 'purchased') {
-    tooltip += '\nEstat: Venut'
+    tooltip += '\nEstat: Vt'
   } else {
     tooltip += '\nEstat: Disponible'
   }
-  
+
   return tooltip
 }
 
 const getActivityClass = (type) => {
   switch (type) {
-    case 'seats_purchased': return 'text-purple-600'
-    case 'seat_blocked': return 'text-yellow-600'
-    case 'seat_released': return 'text-green-600'
-    default: return 'text-gray-600'
+    case 'seats_purchased': return 'text-purple-500'
+    case 'seat_blocked': return 'text-yellow-500'
+    case 'seat_released': return 'text-green-500'
+    default: return 'text-gray-400'
   }
 }
 
@@ -270,34 +282,16 @@ const formatTime = (timestamp) => {
 </script>
 
 <style scoped>
-.seat-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: center;
-}
-
 .seat-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.row-label {
-  width: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #666;
-}
-
-.seats {
-  display: flex;
   gap: 4px;
 }
 
-.seat {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.row-label {
+  width: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
 }
 </style>

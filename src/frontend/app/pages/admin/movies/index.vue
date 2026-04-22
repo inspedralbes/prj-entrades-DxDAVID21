@@ -1,81 +1,117 @@
 <template>
-  <div class="p-8">
-    <div class="flex">
-      <h1 class="text-2xl">Peliculas</h1>
-      <NuxtLink to="/admin/movies/create" class="bg-blue-500"
-        >Nueva pelicula</NuxtLink
+  <div>
+    <AdminCard title="Gestió de Pel·lícules">
+      <template #actions>
+        <NuxtLink to="/admin/movies/create">
+          <AdminButton color="primary" icon="i-heroicons-plus">
+            Afegir pel·lícula
+          </AdminButton>
+        </NuxtLink>
+      </template>
+
+      <div v-if="loading" class="flex justify-center py-12">
+        <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 text-[#0068C8] animate-spin" />
+      </div>
+
+      <AdminTable
+        v-else-if="movies && movies.length > 0"
+        :columns="columns"
+        :data="movies"
       >
-    </div>
-    <div v-if="loading">Cargando ...</div>
+        <template #cell-poster="{ row }">
+          <div class="w-16 h-24 rounded-lg overflow-hidden bg-gray-700">
+            <img
+              v-if="row.poster_url"
+              :src="row.poster_url"
+              :alt="row.title"
+              class="w-full h-full object-cover"
+              @error="handleImageError($event)"
+            >
+            <div v-else class="w-full h-full flex items-center justify-center">
+              <span class="text-gray-500 text-xs">Sense imatge</span>
+            </div>
+          </div>
+        </template>
 
-    <div v-else-if="movies && movies.length > 0">
-      <table class="w-full">
-        <thead>
-          <tr class="bg-gray-200">
-            <th class="border">ID</th>
-            <th class="border">Titulo</th>
-            <th class="border">Genero</th>
-            <th class="border">Duracion</th>
-            <th class="border">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="movie in movies" :key="movie.id" class="text-center">
-            <td class="border">
-              <img
-                v-if="movie.poster_url" 
-                :src="movie.poster_url" 
-                :alt="movie.poster_url"
-                class="w-16 h-24 object-cover mx-auto rounded"
-                @error="handleImageErro($event)" 
-              >
-              <span v-else class="text-gray-400 text-xs">Sin poster</span>
-            </td>
-            <td class="border">{{ movie.id }}</td>
-            <td class="border">{{ movie.title }}</td>
-            <td class="border">{{ movie.genre }}</td>
-            <td class="border">{{ movie.duration }}</td>
-            <td class="border">
-              <NuxtLink
-                :to="`/admin/movies/${movie.id}/edit`"
-                class="text-blue-500"
-                >Editar</NuxtLink
-              >
-              <button @click="handleDelete(movie.id)" class="text-red-500"
-                >Eliminar</button
-              >
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+        <template #cell-title="{ row }">
+          <span class="font-medium text-white">{{ row.title }}</span>
+        </template>
 
-    <div v-else>No hay peliculas</div>
+        <template #cell-genre="{ row }">
+          <AdminBadge color="info">{{ row.genre }}</AdminBadge>
+        </template>
+
+        <template #cell-duration="{ row }">
+          <span class="text-gray-400">{{ row.duration }} min</span>
+        </template>
+
+        <template #cell-actions="{ row }">
+          <div class="flex gap-2 justify-end">
+            <NuxtLink :to="`/admin/movies/${row.id}/edit`">
+              <AdminButton variant="outline" size="sm" icon="i-heroicons-pencil">
+                Editar
+              </AdminButton>
+            </NuxtLink>
+            <AdminButton
+              variant="ghost"
+              color="error"
+              size="sm"
+              icon="i-heroicons-trash"
+              @click="handleDelete(row.id)"
+            >
+              Eliminar
+            </AdminButton>
+          </div>
+        </template>
+      </AdminTable>
+
+      <div v-else class="text-center py-12 text-gray-500">
+        No hi ha pel·lícules
+      </div>
+    </AdminCard>
   </div>
 </template>
 
 <script setup>
-    const movies = ref(null)
-    const loading = ref(true)
-    const moviesApi = useMovies()
+definePageMeta({
+  layout: 'admin'
+})
 
-    onMounted(async () => {
-        try {
-            movies.value = await moviesApi.getMovies()
-        } catch (e) {
-            console.error(e)
-        } finally {
-            loading.value = false
-        }
-    })
+const movies = ref(null)
+const loading = ref(true)
+const moviesApi = useMovies()
 
-    const handleDelete = async (id) => {
-        if (confirm('Estas seguro de eliminar esta pelicula')) {
-            await moviesApi.deleteMovie(id)
-            movies.value = await moviesApi.getMovies()
-        }
+const columns = [
+  { key: 'poster', label: '', align: 'center' },
+  { key: 'id', label: 'ID' },
+  { key: 'title', label: 'Títol' },
+  { key: 'genre', label: 'Gènere' },
+  { key: 'duration', label: 'Duració' },
+  { key: 'actions', label: '', align: 'right' }
+]
+
+onMounted(async () => {
+  try {
+    movies.value = await moviesApi.getMovies()
+  } catch (e) {
+    console.error(e)
+  } finally {
+    loading.value = false
+  }
+})
+
+const handleDelete = async (id) => {
+  if (confirm('Estàs segur d\'eliminar aquesta pel·lícula?')) {
+    try {
+      await moviesApi.deleteMovie(id)
+      movies.value = await moviesApi.getMovies()
+    } catch (error) {
+      console.error('Error eliminant:', error)
     }
-    const handleImageError = (event) => {
-      event.target.src = 'https://via.placeholder.com/64x96?text=Error'
-    }
-</script> 
+  }
+}
+
+const handleImageError = (event) => {
+  event.target.src = 'https://via.placeholder.com/64x96?text=Error'
+}
+</script>

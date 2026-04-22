@@ -7,8 +7,11 @@
           :src="ticket.movie.poster_url"
           :alt="ticket.movie.title"
           class="w-full h-48 md:h-full object-cover"
+        />
+        <div
+          v-else
+          class="w-full h-48 md:h-full bg-gray-700 flex items-center justify-center"
         >
-        <div v-else class="w-full h-48 md:h-full bg-gray-700 flex items-center justify-center">
           <span class="text-gray-400 text-6xl">🎬</span>
         </div>
         <div
@@ -20,7 +23,9 @@
       </div>
 
       <div class="flex-1 p-4">
-        <h3 class="text-white font-bold text-lg mb-2">{{ ticket.movie?.title }}</h3>
+        <h3 class="text-white font-bold text-lg mb-2">
+          {{ ticket.movie?.title }}
+        </h3>
 
         <div class="space-y-2 mb-4">
           <div class="flex items-center gap-2 text-gray-400 text-sm">
@@ -33,7 +38,10 @@
           </div>
           <div class="flex items-center gap-2 text-gray-400 text-sm">
             <UIcon name="i-heroicons-building-office" class="w-4 h-4" />
-            <span>{{ ticket.session?.cinema_name }} - Sala {{ ticket.session?.room_number }}</span>
+            <span
+              >{{ ticket.session?.cinema_name }} - Sala
+              {{ ticket.session?.room_number }}</span
+            >
           </div>
         </div>
 
@@ -51,7 +59,11 @@
         </div>
 
         <div v-if="ticket.status === 'pending'" class="mt-4 flex justify-end">
-          <UButton color="primary" size="sm" @click="$emit('showQr', ticket)">
+          <UButton
+            size="sm"
+            class="bg-[#0068C8] text-white font-bold px-4 py-2 rounded-lg shadow-lg hover:shadow-xl hover:bg-[#004fa3] active:bg-[#003d75] transition-all duration-200"
+            @click="$emit('showQr', ticket)"
+          >
             Mostrar codi QR
           </UButton>
         </div>
@@ -64,39 +76,47 @@
 defineProps({
   ticket: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-defineEmits(['showQr'])
+defineEmits(["showQr"]);
 
 function formatDate(dateStr) {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('ca-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("ca-ES", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 function formatTime(dateStr) {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  return date.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' })
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  return date.toLocaleTimeString("ca-ES", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function getStatusClass(status) {
   const classes = {
-    pending: 'bg-yellow-600 text-white',
-    used: 'bg-gray-600 text-gray-300',
-    cancelled: 'bg-red-600 text-white'
-  }
-  return classes[status] || classes.pending
+    pending: "bg-yellow-600 text-white",
+    used: "bg-gray-600 text-gray-300",
+    cancelled: "bg-red-600 text-white",
+  };
+  return classes[status] || classes.pending;
 }
 
 function getStatusLabel(status) {
   const labels = {
-    pending: 'Pendent',
-    used: 'Utilitzada',
-    cancelled: 'Cancel·lada'
-  }
-  return labels[status] || 'Pendent'
+    pending: "Pendent",
+    used: "Utilitzada",
+    cancelled: "Cancel·lada",
+  };
+  return labels[status] || "Pendent";
 }
 </script>

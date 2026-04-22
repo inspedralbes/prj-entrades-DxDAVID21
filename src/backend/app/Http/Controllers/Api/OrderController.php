@@ -82,17 +82,23 @@ class OrderController extends Controller
 
     public function createOrder(Request $request)
     {
-        $request->validate([
-            'session_id' => 'required|exists:movie_sessions,id',
+        $validated = $request->validate([
+            'session_id' => 'required|integer|exists:movie_sessions,id',
             'seats_ids' => 'required|array|min:1',
             'seats_ids.*' => 'integer',
         ]);
 
         $user = $request->user();
-        $sessionId = $request->input('session_id');
-        $seatIds = $request->input('seats_ids');
+        $sessionId = $validated['session_id'];
+        $seatIds = $validated['seats_ids'];
 
+        // Verificar que el session_id existe
+        $session = MovieSession::find($sessionId);
+        if (!$session) {
+            return response()->json(['message' => "Session {$sessionId} not found"], 400);
+        }
 
+        // Verificar que los asientos están bloqueados por el usuario
         $sessionSeats = SessionSeat::where('session_id', $sessionId)
             ->whereIn('seat_id', $seatIds)
             ->where('status', 'blocked')
@@ -101,7 +107,10 @@ class OrderController extends Controller
             ->get();
 
         if ($sessionSeats->count() !== count($seatIds)) {
-            return response()->json(['message' => 'Some seats are not blocked by you or the lock has expired'], 400);
+            return response()->json([
+                'message' => "Some seats are not properly blocked. Expected " . count($seatIds) . 
+                            " but found " . $sessionSeats->count() . " blocked seats for this user"
+            ], 400);
         }
 
         $total = $this->calculateTotal($sessionId, $seatIds);
