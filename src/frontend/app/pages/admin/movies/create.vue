@@ -1,78 +1,144 @@
 <template>
-    <div class="p-8">
-        <h1 class="text-2xl">Crear pelicules</h1>
+  <div>
+    <AdminCard title="Crear Pel·lícula">
+      <form @submit.prevent="handleSubmit" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Títol</label>
+            <UInput
+              v-model="form.title"
+              placeholder="Títol de la pel·lícula"
+              size="lg"
+              :ui="{ root: 'bg-[#0A0F1F] border-gray-700 text-white placeholder-gray-500' }"
+              required
+            />
+          </div>
 
-        <form @submit.prevent="handleSubmit" class="max-w-lg">
-            <div class="mb-4">
-                <label class="block">Titulo</label>
-                <input v-model="form.title" type="text" class="w-full" required />
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Gènere</label>
+            <UInput
+              v-model="form.genre"
+              placeholder="Gènere cinematogràfic"
+              size="lg"
+              :ui="{ root: 'bg-[#0A0F1F] border-gray-700 text-white placeholder-gray-500' }"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Sinopsi</label>
+          <UTextarea
+            v-model="form.description"
+            placeholder="Descripció de la pel·lícula"
+            :rows="4"
+            :ui="{ root: 'bg-[#0A0F1F] border-gray-700 text-white placeholder-gray-500' }"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Duració (minuts)</label>
+            <UInput
+              v-model="form.duration"
+              type="number"
+              placeholder="120"
+              size="lg"
+              :ui="{ root: 'bg-[#0A0F1F] border-gray-700 text-white placeholder-gray-500' }"
+              required
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Data d'estrena</label>
+            <UInput
+              v-model="form.release_date"
+              type="date"
+              size="lg"
+              :ui="{ root: 'bg-[#0A0F1F] border-gray-700 text-white' }"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">URL del cartell</label>
+          <UInput
+            v-model="form.poster_url"
+            placeholder="https://example.com/poster.jpg"
+            size="lg"
+            :ui="{ root: 'bg-[#0A0F1F] border-gray-700 text-white placeholder-gray-500' }"
+          />
+          <div v-if="form.poster_url" class="mt-4">
+            <p class="text-sm text-gray-400 mb-2">Vista prèvia:</p>
+            <div class="w-32 h-48 rounded-lg overflow-hidden bg-gray-700 border border-gray-600">
+              <img
+                :src="form.poster_url"
+                alt="Vista prèvia del cartell"
+                class="w-full h-full object-cover"
+                @error="handleImageError"
+              >
             </div>
+          </div>
+        </div>
 
-            <div class="mb-4">
-                <label class="block">Description</label>
-                <textarea v-model="form.description" class="w-full"></textarea>
-            </div>
-
-            <div class="mb-4">
-                <label class="block">Genero</label>
-                <input v-model="form.genre" type="text" class="w-full" required />
-            </div>
-
-            <div class="mb-4">
-                <label class="block">Duracion (minutos)</label>
-                <input v-model="form.duration" type="number" class="w-full" required />
-            </div>
-
-            <div class="mb-4">
-                <label class="block">Fecha de estreno</label>
-                <input v-model="form.release_date" type="date" class="w-full" required />
-            </div>
-
-            <div class="mb-4">
-                <label class="block">URL poster</label>
-                <input v-model="form.poster_url" type="text" class="w-full"/>
-
-                <div class="mt-4">
-                    <p class="text-sm">Vista previa:</p>
-                    <img 
-                        :src="form.poster_url" 
-                        alt="Poster preview"
-                        class="w-32 h-48 object-cover rounded border"    
-                    >
-                </div>
-            </div>
-
-            <button type="submit" class="bg-blue-500">
-                Crear pelicula
-            </button>
-
-            <NuxtLink to="/admin/movies" class="ml-4">Cancelar</NuxtLink>
-        </form>
-    </div>
+        <div class="flex gap-4 pt-4 border-t border-gray-700">
+          <AdminButton
+            type="submit"
+            color="primary"
+            size="lg"
+            icon="i-heroicons-check"
+            :loading="loading"
+          >
+            Crear pel·lícula
+          </AdminButton>
+          <NuxtLink to="/admin/movies">
+            <AdminButton
+              variant="ghost"
+              size="lg"
+            >
+              Cancel·lar
+            </AdminButton>
+          </NuxtLink>
+        </div>
+      </form>
+    </AdminCard>
+  </div>
 </template>
 
 <script setup>
-    const form = ref({
-        title: '',
-        description: '',
-        genre: '',
-        duration: '',
-        release_date: '',
-        poster_url: ''
+definePageMeta({
+  layout: 'admin'
+})
+
+const form = ref({
+  title: '',
+  description: '',
+  genre: '',
+  duration: '',
+  release_date: '',
+  poster_url: ''
+})
+
+const loading = ref(false)
+const moviesApi = useMovies()
+
+const handleSubmit = async () => {
+  loading.value = true
+  try {
+    await moviesApi.createMovie({
+      ...form.value,
+      duration: parseInt(form.value.duration)
     })
+    navigateTo('/admin/movies')
+  } catch (e) {
+    console.error(e)
+  } finally {
+    loading.value = false
+  }
+}
 
-    const moviesApi = useMovies()
-
-    const handleSubmit = async () => {
-        try {
-            await moviesApi.createMovie({
-                ...form.value,
-                duration: parseInt(form.value.duration)
-            })
-            navigateTo('/admin/movies')
-        } catch (e) {
-            console.error(e)
-            alert('Error al crear pelicula')
-        }
-    }
+const handleImageError = (event) => {
+  event.target.src = 'https://via.placeholder.com/128x192?text=Error'
+}
 </script>

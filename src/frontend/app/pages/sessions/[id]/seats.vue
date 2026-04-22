@@ -1,392 +1,360 @@
 <template>
-  <div class="p-6 max-w-4xl mx-auto">
-    <div v-if="loading" class="text-center py-12">
-      <p>Cargant sales...</p>
+  <div class="container mx-auto px-4 py-8">
+    <div v-if="loading" class="flex justify-center py-16">
+      <UIcon
+        name="i-heroicons-arrow-path"
+        class="w-8 h-8 text-[#0068C8] animate-spin"
+      />
     </div>
 
     <div v-else-if="session">
-      <div class="mb-6">
-        <div class="flex justify-between items-start">
+      <div class="bg-[#1A2238] rounded-xl p-6 mb-6">
+        <div
+          class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6"
+        >
           <div>
-            <h1 class="text-2xl font-bold">{{ session.movie?.title }}</h1>
-            <div class="flex gap-4 text-gray-600 mt-2">
-              <span>{{ session.room?.name }}</span>
-              <span>{{ formatDate(session.start_time) }}</span>
-              <span class="font-semibold text-green-600">{{ price }}€</span>
+            <h1 class="text-3xl font-bold text-white mb-2">
+              {{ session.movie?.title }}
+            </h1>
+            <div class="flex flex-wrap gap-4 text-gray-400">
+              <span class="flex items-center gap-2">
+                <UIcon name="i-heroicons-building-office" class="w-4 h-4" />
+                {{ session.room?.name }}
+              </span>
+              <span class="flex items-center gap-2">
+                <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
+                {{ formatDate(session.start_time) }}
+              </span>
+              <span class="text-[#F7C600] font-bold flex items-center gap-2">
+                <UIcon name="i-heroicons-currency-euro" class="w-4 h-4" />
+                {{ price }}€
+              </span>
             </div>
           </div>
-          <div class="text-right">
+          <div class="text-right mt-4 md:mt-0">
             <div class="text-sm text-gray-500">Usuaris connectats</div>
-            <div class="text-2xl font-bold text-blue-600">{{ connectedUsers }}</div>
+            <div class="text-2xl font-bold text-[#0068C8]">
+              {{ connectedUsers }}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div v-if="notification" class="mb-4 p-3 rounded" :class="notificationClass">
-        {{ notification }}
-      </div>
+        <UAlert
+          v-if="notification"
+          :color="notificationType"
+          variant="subtle"
+          class="mb-6"
+        >
+          {{ notification }}
+        </UAlert>
 
-      <div class="bg-gray-800 text-white text-center py-2 mb-8 rounded">
-        PANTALLA
-      </div>
+        <SeatSelector
+          :seats="formattedSeats"
+          :selected-seats="selectedSeatObjects"
+          :base-price="price"
+          @update:selected-seats="handleSeatUpdate"
+        />
 
-      <div class="seat-grid mb-8">
-        <div v-for="rowLabel in orderedRows" :key="rowLabel" class="seat-row">
-          <span class="row-label">{{ rowLabel }}</span>
-          <div class="seats">
-            <button
-              v-for="seat in seatsByRow[rowLabel]"
-              :key="seat.id"
-              :disabled="seat.status === 'purchased' || (seat.status === 'blocked' && !isMyBlockedSeat(seat))"
-              :class="getSeatClass(seat)"
-              @click="handleSeatClick(seat)"
-              :title="`Row ${seat.row_label}, Seat ${seat.number} - ${seat.status}`"
-            >
-              {{ seat.number }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="legend mb-6">
-        <div class="flex gap-4 justify-center flex-wrap">
-          <div class="flex items-center gap-2">
-            <div class="w-6 h-6 bg-gray-300 rounded"></div>
-            <span>Disponible</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="w-6 h-6 bg-green-500 rounded"></div>
-            <span>Seleccionat</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="w-6 h-6 bg-red-500 rounded"></div>
-            <span>Bloquejat{{ blockedTimeRemaining ? ` (${blockedTimeRemaining})` : '' }}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="w-6 h-6 bg-gray-600 rounded"></div>
-            <span>Vdut</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="summary border-t pt-4">
-        <div class="flex justify-between items-center">
-          <div>
-            <span class="text-lg">Seients seleccionats: {{ selectedSeats.length }}</span>
-            <span class="text-xl font-bold ml-4">{{ total }}€</span>
-          </div>
-          <button
-            v-if="selectedSeats.length > 0"
-            class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 disabled:opacity-50"
-            :disabled="processing"
+        <div class="mt-6 flex justify-end">
+          <UButton
+            size="lg"
+            :loading="processing"
+            :disabled="selectedSeats.length === 0"
+            icon="i-heroicons-credit-card"
+            class="bg-[#0068C8] text-white font-bold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl hover:bg-[#004fa3] active:bg-[#003d75] transition-all duration-200 transform hover:scale-105"
             @click="proceedToCheckout"
           >
-            {{ processing ? 'Processant...' : 'Continuar al Pagament' }}
-          </button>
+            Continuar a la compra
+          </UButton>
+        </div>
+
+        <div
+          v-if="recentActivity.length > 0"
+          class="mt-6 pt-6 border-t border-gray-700"
+        >
+          <h3 class="text-sm font-semibold text-gray-400 mb-2">
+            Activitat recent
+          </h3>
+          <div class="space-y-1">
+            <div
+              v-for="(activity, index) in recentActivity"
+              :key="index"
+              class="text-sm text-gray-500"
+            >
+              {{ activity }}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div v-if="recentActivity.length > 0" class="mt-6 border-t pt-4">
-        <h3 class="text-sm font-semibold text-gray-500 mb-2">Activitat recent</h3>
-        <div class="space-y-1">
-          <div
-            v-for="(activity, index) in recentActivity"
-            :key="index"
-            class="text-sm text-gray-600"
-          >
-            {{ activity }}
-          </div>
-        </div>
+      <div
+        v-if="blockedTimeRemaining"
+        class="bg-yellow-600 text-white px-4 py-2 rounded-lg text-center mb-4"
+      >
+        <UIcon name="i-heroicons-clock" class="w-5 h-5 mr-2" />
+        Temps restant per completar la compra: {{ blockedTimeRemaining }}
       </div>
     </div>
 
-    <div v-else class="text-center py-12">
-      <p>Sessio no trobada</p>
-      <NuxtLink to="/movies" class="text-blue-500 hover:underline">Tornar a pel.licules</NuxtLink>
+    <div v-else class="text-center py-16">
+      <div class="text-gray-400 text-xl mb-4">Sessió no trobada</div>
+      <NuxtLink to="/movies">
+        <UButton
+          class="bg-[#0068C8] text-white font-bold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl hover:bg-[#004fa3] active:bg-[#003d75] transition-all duration-200 transform hover:scale-105"
+        >
+          Tornar a les pel·lícules
+        </UButton>
+      </NuxtLink>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useAuthStore } from '~/stores/auth'
-import { useBookingStore } from '~/stores/booking'
+import { useAuthStore } from "~/stores/auth";
+import { useBookingStore } from "~/stores/booking";
 
-const route = useRoute()
-const router = useRouter()
-const sessionId = parseInt(route.params.id)
+const route = useRoute();
+const router = useRouter();
+const sessionId = parseInt(route.params.id);
 
-const authStore = useAuthStore()
-const bookingStore = useBookingStore()
+const authStore = useAuthStore();
+const bookingStore = useBookingStore();
 
-const loading = ref(true)
-const processing = ref(false)
-const blockedTimeRemaining = ref('')
-const connectedUsers = ref(0)
-const notification = ref('')
-const notificationType = ref('info')
-const recentActivity = ref([])
-let countdownInterval = null
-let notificationTimeout = null
+const loading = ref(true);
+const processing = ref(false);
+const blockedTimeRemaining = ref("");
+const connectedUsers = ref(0);
+const notification = ref("");
+const notificationType = ref("info");
+const recentActivity = ref([]);
+let countdownInterval = null;
+let notificationTimeout = null;
 
-const session = ref(null)
-// const seats = computed(() => booking.seats)
-const selectedSeats = ref([])
-const price = ref(12)
+const session = ref(null);
+const selectedSeats = ref([]);
+const selectedSeatObjects = ref([]);
+const price = ref(12);
 
-const publicSessions = usePublicSessions()
-const booking = useBooking()
-const socketInstance = useSocket()
-let rawSocket = null
+const publicSessions = usePublicSessions();
+const booking = useBooking();
+const socketInstance = useSocket();
+let rawSocket = null;
 
 onMounted(async () => {
-    try {
-        const data = await publicSessions.getSessionSeats(sessionId)
-        session.value = data.session
-        // seats.value = data.seats
-        price.value = data.price
+  try {
+    const data = await publicSessions.getSessionSeats(sessionId);
+    session.value = data.session;
+    price.value = data.price;
 
-        bookingStore.setSessionData(data.session, data.seats, data.price)
-        selectedSeats.value = []
+    bookingStore.setSessionData(data.session, data.seats, data.price);
+    selectedSeats.value = [];
+    selectedSeatObjects.value = [];
 
-        rawSocket = socketInstance.connect(sessionId)
+    rawSocket = socketInstance.connect(sessionId);
 
-        rawSocket.on('users:count', (data) => {
-            if (data.sessionId === sessionId) {
-                connectedUsers.value = data.count
-            }
-        })
+    rawSocket.on("users:count", (data) => {
+      if (data.sessionId === sessionId) {
+        connectedUsers.value = data.count;
+      }
+    });
 
-        rawSocket.on('activity', (data) => {
-            if (data.sessionId === sessionId && data.userId !== authStore.user?.id) {
-                addActivity(data.message)
+    rawSocket.on("activity", (data) => {
+      if (data.sessionId === sessionId && data.userId !== authStore.user?.id) {
+        addActivity(data.message);
 
-                if (data.type === 'seats_purchased') {
-                    showNotification(`S\'han venut ${data.seatIds?.length || 1} seient(s)!`, 'warning')
-                }
-            }
-        })
+        if (data.type === "seats_purchased") {
+          showNotification(
+            `S'han venut ${data.seatIds?.length || 1} seient(s)!`,
+            "warning",
+          );
+        }
+      }
+    });
 
-        rawSocket.on('seat:status', (data) => {
-            if (data.sessionId === sessionId) {
-                // Actualizar el estado del asiento en la tienda
-                bookingStore.updateSeatStatus(data.seatId, data.status)
+    rawSocket.on("seat:status", (data) => {
+      if (data.sessionId === sessionId) {
+        bookingStore.updateSeatStatus(data.seatId, data.status);
 
-                if (data.status === 'blocked' && data.blockedBy !== authStore.user?.id) {
-                    showNotification(`Un altre usuari ha bloquejat un seient`, 'info')
-                } else if (data.status === 'purchased') {
-                    showNotification(`Un asient ha estat venut!`, 'warning')
-                }
-            }
-        })
-
-    } catch (error) {
-        console.error('Error loading session:', error)
-    } finally {
-        loading.value = false
-    }
-})
+        if (
+          data.status === "blocked" &&
+          data.blockedBy !== authStore.user?.id
+        ) {
+          showNotification(`Un altre usuari ha bloquejat un seient`, "info");
+        } else if (data.status === "purchased") {
+          showNotification(`Un seient ha estat venut!`, "warning");
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Error loading session:", error);
+  } finally {
+    loading.value = false;
+  }
+});
 
 onUnmounted(() => {
-    socketInstance.disconnect()
-    if (countdownInterval) {
-        clearInterval(countdownInterval)
+  socketInstance.disconnect();
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+  if (notificationTimeout) {
+    clearTimeout(notificationTimeout);
+  }
+});
+
+const seatsByRow = computed(() => bookingStore.getSeatsByRow);
+const orderedRows = computed(() => Object.keys(seatsByRow.value).sort());
+
+const formattedSeats = computed(() => {
+  const rows = [];
+  for (const rowLabel of orderedRows.value) {
+    const row = [];
+    for (const seat of seatsByRow.value[rowLabel]) {
+      let status = "available";
+      if (seat.status === "purchased") {
+        status = "occupied";
+      } else if (seat.status === "blocked") {
+        if (isMyBlockedSeat(seat)) {
+          status = "selected";
+        } else {
+          status = "occupied";
+        }
+      } else if (selectedSeats.value.includes(seat.id)) {
+        status = "selected";
+      }
+
+      row.push({
+        id: seat.id,
+        number: seat.number,
+        status,
+        price: price.value,
+      });
     }
-    if (notificationTimeout) {
-        clearTimeout(notificationTimeout)
-    }
-})
+    rows.push(row);
+  }
+  return rows;
+});
 
-const seatsByRow = computed(() => bookingStore.getSeatsByRow)
-const orderedRows = computed(() => Object.keys(seatsByRow.value).sort())
-const total = computed(() => selectedSeats.value.length * price.value)
-
-const notificationClass = computed(() => {
-    switch (notificationType.value) {
-        case 'success': return 'bg-green-100 text-green-800 border border-green-300'
-        case 'warning': return 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-        case 'error': return 'bg-red-100 text-red-800 border border-red-300'
-        default: return 'bg-blue-100 text-blue-800 border border-blue-300'
-    }
-})
-
-const showNotification = (message, type = 'info') => {
-    notification.value = message
-    notificationType.value = type
-
-    if (notificationTimeout) {
-        clearTimeout(notificationTimeout)
-    }
-
-    notificationTimeout = setTimeout(() => {
-        notification.value = ''
-    }, 5000)
+function handleSeatUpdate(seats) {
+  selectedSeatObjects.value = seats;
+  selectedSeats.value = seats.map((s) => s.id);
 }
+
+const showNotification = (message, type = "info") => {
+  notification.value = message;
+  notificationType.value = type;
+
+  if (notificationTimeout) {
+    clearTimeout(notificationTimeout);
+  }
+
+  notificationTimeout = setTimeout(() => {
+    notification.value = "";
+  }, 5000);
+};
 
 const addActivity = (message) => {
-    const timestamp = new Date().toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' })
-    recentActivity.value.unshift(`[${timestamp}] ${message}`)
-    if (recentActivity.value.length > 5) {
-        recentActivity.value.pop()
-    }
-}
+  const timestamp = new Date().toLocaleTimeString("ca-ES", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  recentActivity.value.unshift(`[${timestamp}] ${message}`);
+  if (recentActivity.value.length > 5) {
+    recentActivity.value.pop();
+  }
+};
 
 const formatDate = (dateStr) => {
-    const date = new Date(dateStr)
-    return date.toLocaleString('ca-ES', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-    })
-}
-
-const getSeatClass = (seat) => {
-    const baseClass = 'seat w-8 h-8 rounded text-xs font-medium transition-colors'
-
-    if (seat.status === 'purchased') {
-        return `${baseClass} bg-gray-600 text-gray-400 cursor-not-allowed`
-    }
-
-    if (isMyBlockedSeat(seat)) {
-        return `${baseClass} bg-red-500 text-white`
-    }
-
-    if (seat.status === 'blocked') {
-        return `${baseClass} bg-red-300 text-red-800 cursor-not-allowed`
-    }
-
-    if (selectedSeats.value.includes(seat.id)) {
-        return `${baseClass} bg-green-500 text-white hover:bg-green-600`
-    }
-
-    return `${baseClass} bg-gray-300 text-gray-700 hover:bg-gray-400`
-}
+  const date = new Date(dateStr);
+  return date.toLocaleString("ca-ES", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
 const isMyBlockedSeat = (seat) => {
-    return seat.blocked_by === authStore.user?.id
-}
-
-const handleSeatClick = async (seat) => {
-    if (seat.status === 'blocked' && !isMyBlockedSeat(seat)) {
-        showNotification('Aquest seient esta bloquejat per un altre usuari', 'warning')
-        return
-    }
-
-    if (seat.status === 'purchased') {
-        showNotification('Aquest seient ya esta venut', 'error')
-        return
-    }
-
-    const index = selectedSeats.value.indexOf(seat.id)
-    if (index > -1) {
-        selectedSeats.value.splice(index, 1)
-        bookingStore.toggleSeat(seat.id)
-    } else {
-        selectedSeats.value.push(seat.id)
-        bookingStore.toggleSeat(seat.id)
-    }
-}
+  return seat.blocked_by === authStore.user?.id;
+};
 
 const proceedToCheckout = async () => {
-    if (selectedSeats.value.length === 0) return
+  if (selectedSeats.value.length === 0) return;
 
-    processing.value = true
+  processing.value = true;
 
-    try {
-        const result = await booking.blockSeats(sessionId, selectedSeats.value)
+  try {
+    console.log("Bloqueando asientos:", selectedSeats.value);
+    const result = await booking.blockSeats(sessionId, selectedSeats.value);
+    console.log("Resultado del bloqueo:", result);
 
-        if (result.session_seats) {
-            result.session_seats.forEach((seatData) => {
-                socketInstance.emitSeatBlock(sessionId, seatData.id, result.expires_at)
-            })
+    if (result && result.session_seats) {
+      result.session_seats.forEach((seatData) => {
+        socketInstance.emitSeatBlock(sessionId, seatData.id, result.expires_at);
+      });
 
-            bookingStore.setBlockedSeats(result.session_seats, result.expires_at)
+      bookingStore.setBlockedSeats(result.session_seats, result.expires_at);
 
-            const expiresAt = new Date(result.expires_at)
-            startCountdown(expiresAt)
+      const expiresAt = new Date(result.expires_at);
+      startCountdown(expiresAt);
 
-            showNotification('Seients bloquejats! Tens 15 minuts per completar la compra.', 'success')
+      showNotification(
+        "Seients bloquejats! Tens 15 minuts per completar la compra.",
+        "success",
+      );
 
-            setTimeout(() => {
-                router.push('/checkout')
-            }, 1500)
-        }
-    } catch (error) {
-        console.error('Error blocking seats:', error)
-        showNotification(error.data?.message || 'Error en bloquejar els seients', 'error')
-    } finally {
-        processing.value = false
+      setTimeout(() => {
+        router.push("/checkout");
+      }, 1500);
+    } else {
+      console.error("Respuesta inesperada del servidor:", result);
+      showNotification("Error: Respuesta inesperada del servidor", "error");
     }
-}
+  } catch (error) {
+    console.error("Error blocking seats:", error);
+    const errorMessage =
+      error.data?.message || error.message || "Error en bloquejar els seients";
+    showNotification(errorMessage, "error");
+  } finally {
+    processing.value = false;
+  }
+};
 
 const startCountdown = (expiresAt) => {
-    const update = () => {
-        const now = new Date()
-        const diff = expiresAt - now
+  const update = () => {
+    const now = new Date();
+    const diff = expiresAt - now;
 
-        if (diff <= 0) {
-            blockedTimeRemaining.value = 'Expirat!'
-            if (countdownInterval) {
-                clearInterval(countdownInterval)
-            }
+    if (diff <= 0) {
+      blockedTimeRemaining.value = "Expirat!";
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
 
-            selectedSeats.value.forEach((seatId) => {
-                socketInstance.emitSeatRelease(sessionId, seatId)
-            })
-            bookingStore.clearSelection()
+      selectedSeats.value.forEach((seatId) => {
+        socketInstance.emitSeatRelease(sessionId, seatId);
+      });
+      bookingStore.clearSelection();
 
-            showNotification('Temps expirat! Els seients s\'han alliberat.', 'error')
+      showNotification("Temps expirat! Els seients s'han alliberat.", "error");
 
-            setTimeout(() => {
-                router.push('/movies')
-            }, 2000)
-            return
-        }
-
-        const minutes = Math.floor(diff / 60000)
-        const seconds = Math.floor((diff % 60000) / 1000)
-        blockedTimeRemaining.value = `${minutes}:${seconds.toString().padStart(2, '0')}`
-
-        if (diff <= 60000) {
-            blockedTimeRemaining.value = `Expire aviat: ${blockedTimeRemaining.value}`
-        }
+      setTimeout(() => {
+        router.push("/movies");
+      }, 2000);
+      return;
     }
 
-    update()
-    countdownInterval = setInterval(update, 1000)
-}
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    blockedTimeRemaining.value = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+
+    if (diff <= 60000) {
+      blockedTimeRemaining.value = `Expire aviat: ${blockedTimeRemaining.value}`;
+    }
+  };
+
+  update();
+  countdownInterval = setInterval(update, 1000);
+};
 </script>
-
-<style scoped>
-.seat-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-}
-
-.seat-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.row-label {
-    width: 20px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #666;
-}
-
-.seats {
-    display: flex;
-    gap: 4px;
-}
-
-.seat {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-</style>
