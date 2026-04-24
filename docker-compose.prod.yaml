@@ -12,7 +12,7 @@ services:
       - ./nginx/conf:/etc/nginx/conf.d
       - ./certbot/www:/var/www/certbot
       - ./certbot/conf:/etc/letsencrypt
-      - ./src/backend:/var/www/html
+      - ./src/backend:/var/www/html:ro
       - ./src/frontend/.output:/var/www/frontend
     depends_on:
       - laravel
@@ -25,8 +25,6 @@ services:
     container_name: laravel
     restart: always
     env_file: .env
-    volumes:
-      - ./src/backend:/var/www/html
 
   nuxt:
     build:
@@ -43,7 +41,6 @@ services:
     restart: always
     ports:
       - "3001:3001"
-
 
   postgres:
     image: postgres:17-alpine
