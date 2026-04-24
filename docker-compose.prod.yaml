@@ -8,8 +8,8 @@ services:
       - "443:443"
     volumes:
       - ./nginx/conf:/etc/nginx/conf.d:ro
-      - ./certbot/www:/var/www/certbot
-      - ./certbot/conf:/etc/letsencrypt
+      - /opt/xcinema/certbot/www:/var/www/certbot
+      - /opt/xcinema/certbot/conf:/etc/letsencrypt
       - ./src/backend:/var/www/html:ro
       - ./src/frontend/.output:/var/www/frontend
     depends_on:
@@ -52,8 +52,8 @@ services:
     image: certbot/certbot
     container_name: certbot
     volumes:
-      - ./certbot/www:/var/www/certbot
-      - ./certbot/conf:/etc/letsencrypt
+      - /opt/xcinema/certbot/www:/var/www/certbot
+      - /opt/xcinema/certbot/conf:/etc/letsencrypt
 
 volumes:
   postgres_db:
