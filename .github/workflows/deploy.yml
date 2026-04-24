@@ -45,8 +45,12 @@ jobs:
           script: |
             set -e
             cd /opt/xcinema/
-            docker compose -f docker-compose.prod.yaml up -d --build
+            
+            # Renombrar el archivo de prod a docker-compose.yaml para que sea el por defecto
+            mv docker-compose.prod.yaml docker-compose.yaml
+            
+            docker compose up -d --build
             docker image prune -f
 
             # Migracions Laravel dins Docker
-            docker compose exec laravel php artisan migrate --force
+            docker compose exec -T laravel php artisan migrate --force
