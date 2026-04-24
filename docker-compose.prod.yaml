@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+      - ./src/backend:/var/www/html
+      - ./src/frontend/.output:/var/www/frontend
+    depends_on:
+      - laravel
+      - nuxt
+
+  laravel:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile.prod
+    container_name: laravel
+    restart: always
+    env_file: .env
+    volumes:
+      - ./src/backend:/var/www/html
+
+  nuxt:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile.prod
+    container_name: nuxt
+    restart: always
+
+  realtime:
+    build:
+      context: ./src/realtime
+      dockerfile: Dockerfile.prod
+    container_name: realtime
+    restart: always
+    ports:
+      - "3001:3001"
+
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: db
+    restart: always
+    env_file: .env
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+
+volumes:
+  postgres_db:

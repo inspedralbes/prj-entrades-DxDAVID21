@@ -1,0 +1,18 @@
+FROM node:20
+
+WORKDIR /app
+
+# Copiamos package.json y package-lock.json
+COPY package*.json ./
+
+# Instalamos dependencias en modo producción
+RUN npm install --omit=dev
+
+# Copiamos el resto del código
+COPY . .
+
+# Exponemos el puerto del realtime
+EXPOSE 3001
+
+# Comando de arranque
+CMD ["node", "index.js"]
