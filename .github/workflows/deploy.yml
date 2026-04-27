@@ -16,7 +16,7 @@ jobs:
       - name: Sync files to server
         uses: burnett01/rsync-deployments@7.0.1
         with:
-          switches: -avzr --delete --exclude ".git" --exclude ".github"
+          switches: -avzr --delete --exclude ".git" --exclude ".github" --exclude "certbot"
           path: ./
           remote_path: /opt/xcinema/
           remote_host: ${{ secrets.SSH_HOST }}
