@@ -57,5 +57,10 @@ services:
       - /opt/xcinema/certbot/www:/var/www/certbot
       - /opt/xcinema/certbot/conf:/etc/letsencrypt
 
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+
 volumes:
   postgres_db:
