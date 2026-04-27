@@ -2,6 +2,7 @@ import { useAuthStore } from "~/stores/auth";
 
 export const useBooking = () => {
   const authStore = useAuthStore();
+  const config = useRuntimeConfig();
 
   const getAuthHeaders = () => ({
     Authorization: `Bearer ${authStore.token}`,
@@ -9,7 +10,7 @@ export const useBooking = () => {
 
   const getSessionSeats = async (sessionId: number) => {
     return await $fetch(
-      `http://localhost:8000/api/sessions/${sessionId}/seats`,
+      `${config.public.apiBase}/sessions/${sessionId}/seats`,
       {},
     );
   };
@@ -18,7 +19,7 @@ export const useBooking = () => {
     sessionId: number,
     seatIds: (number | string)[],
   ) => {
-    return await $fetch("http://localhost:8000/api/orders/block-seats", {
+    return await $fetch(`${config.public.apiBase}/orders/block-seats`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: {
@@ -29,7 +30,7 @@ export const useBooking = () => {
   };
 
   const releaseSeats = async (sessionId: number, seatIds: number[]) => {
-    return await $fetch("http://localhost:8000/api/orders/release-seats", {
+    return await $fetch(`${config.public.apiBase}/orders/release-seats`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: { session_id: sessionId, seats_ids: seatIds },
@@ -60,7 +61,7 @@ export const useBooking = () => {
       seats_ids: validatedSeatIds,
     });
 
-    return await $fetch("http://localhost:8000/api/orders/create", {
+    return await $fetch(`${config.public.apiBase}/orders/create`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: { session_id: sessionId, seats_ids: validatedSeatIds },
@@ -68,7 +69,7 @@ export const useBooking = () => {
   };
 
   const simulatePayment = async (orderId: number) => {
-    return await $fetch("http://localhost:8000/api/orders/simulate-payment", {
+    return await $fetch(`${config.public.apiBase}/orders/simulate-payment`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: { order_id: orderId },
@@ -76,10 +77,11 @@ export const useBooking = () => {
   };
 
   const getMyOrders = async () => {
-    return await $fetch("http://localhost:8000/api/orders/my-orders", {
+    return await $fetch(`${config.public.apiBase}/orders/my-orders`, {
       headers: getAuthHeaders(),
     });
   };
+
 
   return {
     getSessionSeats,

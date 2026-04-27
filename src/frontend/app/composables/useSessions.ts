@@ -2,25 +2,26 @@ import { useAuthStore } from "~/stores/auth";
 
 export const useSessions = () => {
   const authStore = useAuthStore();
+  const config = useRuntimeConfig();
 
   const getAuthHeaders = () => ({
     Authorization: `Bearer ${authStore.token}`,
   });
 
   const getSessions = async () => {
-    return await $fetch("http://localhost:8000/api/admin/sessions", {
+    return await $fetch(`${config.public.apiBase}/admin/sessions`, {
       headers: getAuthHeaders(),
     });
   };
 
   const getSession = async (id: number) => {
-    return await $fetch(`http://localhost:8000/api/admin/sessions/${id}`, {
+    return await $fetch(`${config.public.apiBase}/admin/sessions/${id}`, {
       headers: getAuthHeaders(),
     });
   };
 
   const createSession = async (sessionData: any) => {
-    return await $fetch("http://localhost:8000/api/admin/sessions", {
+    return await $fetch(`${config.public.apiBase}/admin/sessions`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: sessionData,
@@ -28,7 +29,7 @@ export const useSessions = () => {
   };
 
   const updateSession = async (id: number, sessionData: any) => {
-    return await $fetch(`http://localhost:8000/api/admin/sessions/${id}`, {
+    return await $fetch(`${config.public.apiBase}/admin/sessions/${id}`, {
       method: "PUT",
       headers: getAuthHeaders(),
       body: sessionData,
@@ -36,11 +37,12 @@ export const useSessions = () => {
   };
 
   const deleteSession = async (id: number) => {
-    return await $fetch(`http://localhost:8000/api/admin/sessions/${id}`, {
+    return await $fetch(`${config.public.apiBase}/admin/sessions/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
     });
   };
+
 
   return {
     getSessions,

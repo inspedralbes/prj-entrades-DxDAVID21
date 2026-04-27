@@ -9,19 +9,19 @@ export const useMovies = () => {
   })
 
   const getMovies = async () => {
-    return await $fetch("http://localhost:8000/api/admin/movies", {
+    return await $fetch(`${config.public.apiBase}/admin/movies`, {
       headers: getAuthHeaders(),
     });
   };
 
   const getMovie = async (id: number) => {
-    return await $fetch(`http://localhost:8000/api/admin/movies/${id}`, {
+    return await $fetch(`${config.public.apiBase}/admin/movies/${id}`, {
       headers: getAuthHeaders(),
     });
   };
 
   const createMovie = async (movieData: any) => {
-    return await $fetch("http://localhost:8000/api/admin/movies", {
+    return await $fetch(`${config.public.apiBase}/admin/movies`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: movieData,
@@ -29,7 +29,7 @@ export const useMovies = () => {
   };
 
   const updateMovie = async (id: number, movieData: any) => {
-    return await $fetch(`http://localhost:8000/api/admin/movies/${id}`, {
+    return await $fetch(`${config.public.apiBase}/admin/movies/${id}`, {
       method: "PUT",
       headers: getAuthHeaders(),
       body: movieData,
@@ -37,7 +37,7 @@ export const useMovies = () => {
   };
 
   const deleteMovie = async (id: number) => {
-    return await $fetch(`http://localhost:8000/api/admin/movies/${id}`, {
+    return await $fetch(`${config.public.apiBase}/admin/movies/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
     });

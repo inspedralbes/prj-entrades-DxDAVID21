@@ -1,15 +1,17 @@
 export const usePublicSessions = () => {
+    const config = useRuntimeConfig()
     const getSessions = async () => {
-        return await $fetch('http://localhost:8000/api/sessions')
+        return await $fetch(`${config.public.apiBase}/sessions`)
     }
 
     const getSession = async (id: number) => {
-        return await $fetch(`http://localhost:8000/api/sessions/${id}`)
+        return await $fetch(`${config.public.apiBase}/sessions/${id}`)
     }
 
     const getSessionSeats = async (id: number) => {
-        return await $fetch(`http://localhost:8000/api/sessions/${id}/seats`)
+        return await $fetch(`${config.public.apiBase}/sessions/${id}/seats`)
     }
+
 
     return {getSessions, getSession, getSessionSeats}
 }

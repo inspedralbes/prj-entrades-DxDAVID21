@@ -30,6 +30,8 @@ services:
       dockerfile: Dockerfile.prod
     container_name: nuxt
     restart: always
+    environment:
+      - NUXT_PUBLIC_API_BASE=/api
 
   realtime:
     build:
