@@ -10,7 +10,9 @@ export const useSocket = () => {
     const connectedUserCount = ref (0)
 
     const connect = (sessionId: number) => {
-        const socketUrl = 'http://localhost:3001'
+        const socketUrl = import.meta.client && window.location.hostname === 'localhost' 
+            ? 'http://localhost:3001' 
+            : '/'
         const token = localStorage.getItem('token')
 
         socket = io(socketUrl, {
